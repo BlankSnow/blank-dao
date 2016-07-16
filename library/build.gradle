@@ -1,0 +1,33 @@
+apply plugin: 'com.android.library'
+apply plugin: 'com.novoda.bintray-release'
+
+android {
+    compileSdkVersion 23
+    buildToolsVersion "23.0.2"
+
+    defaultConfig {
+        minSdkVersion 16
+        targetSdkVersion 23
+        versionCode 1
+        versionName "1.0.0"
+    }
+    buildTypes {
+        release {
+            minifyEnabled false
+            proguardFiles getDefaultProguardFile('proguard-android.txt'), 'proguard-rules.pro'
+        }
+    }
+}
+
+dependencies {
+
+}
+
+publish {
+    userOrg = 'blanksnow'
+    groupId = 'com.blank.dao'
+    artifactId = 'blank-dao'
+    publishVersion = '1.0.0'
+    desc = 'Simple SQLite DAO access for android projects'
+    website = 'https://github.com/BlankSnow/blank-dao'
+}
