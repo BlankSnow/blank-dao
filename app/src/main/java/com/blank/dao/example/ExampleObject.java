@@ -2,11 +2,9 @@ package com.blank.dao.example;
 
 import android.content.Context;
 
-import com.blank.dao.BlankBaseDaoManager;
-import com.blank.dao.BlankBaseDaoObject;
 import com.blank.dao.annotations.BlankTransient;
 
-public class ExampleObject extends BlankBaseDaoObject {
+public class ExampleObject extends ExampleBaseObject {
 
     public String name;
 
@@ -17,8 +15,4 @@ public class ExampleObject extends BlankBaseDaoObject {
         super(ctx);
     }
 
-    @Override
-    public BlankBaseDaoManager getBlankDaoManager() {
-        return new ExampleBlankDaoManager(context);
-    }
 }

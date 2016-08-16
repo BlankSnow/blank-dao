@@ -20,8 +20,9 @@ public class ExampleBlankDaoManager extends BlankBaseDaoManager {
     protected List<BlankBaseDaoObject> getAllTableObjects() {
         List<BlankBaseDaoObject> list = new ArrayList<>();
 
-        // Classes to CRUD in database
+        // FIXME: Classes to CRUD in database
         list.add(new ExampleObject(context));
+        // TODO: more classes...
 
         return list;
     }
