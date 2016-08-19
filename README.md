@@ -4,7 +4,7 @@ Simple access to SQLite database in Android
 ## Usage
 
 Create a java class with a content like this:
-```
+```java
 public class ExampleBlankDaoManager extends BlankBaseDaoManager {
 
     private static final int DATABASE_VERSION = 1;
@@ -28,7 +28,7 @@ public class ExampleBlankDaoManager extends BlankBaseDaoManager {
 Note in objects that you want save into database.
 
 Create base class extended of BlankBaseDaoObject with and override getBlankDaoManager() method with your ExampleBlankDaoManager
-```
+```java
 public class ExampleBaseObject extends BlankBaseDaoObject {
 
     public ExampleBaseObject(Context ctx) {
@@ -43,7 +43,7 @@ public class ExampleBaseObject extends BlankBaseDaoObject {
 ```
 
 Create a CRUD class that extends base class created before
-```
+```java
 pubic class ExampleObject extends ExampleBaseObject {
 
     public String name;
@@ -60,7 +60,7 @@ pubic class ExampleObject extends ExampleBaseObject {
 Note that the @BlankTransient attributes will not stored in database. Stored attributes must be Objects.
 
 Finally you could use like this:
-```
+```java
 ExampleObject newObject = new ExampleObject(getActivity());
 newObject.name = "This is a name";
 BlankDao.saveOrUpdate(newObject);
