@@ -2,76 +2,61 @@
 Simple access to SQLite database in Android
 
 ## Usage
-
-Create a java class with a content like this:
+We create the objects that we want to save in database, they must extend the class BlankDaoObject, for example:
 ```java
-public class ExampleBlankDaoManager extends BlankBaseDaoManager {
+public class ExampleObject extends DaoBaseObject {
+
+    public String  someString;
+    public Boolean someBoolean;
+    public Integer someInteger;
+
+    @BlankTransient public String  noSavedString;
+    @BlankTransient public Boolean noSavedBoolean;
+    @BlankTransient public Integer noSavedInteger;
+
+}
+```
+Note that the @BlankTransient annotation avoids save one field in database. Stored attributes must be Objects.
+
+Create an SomeNameBlankDaoManager that extends BlankDaoManager with a content like this:
+```java
+public class ExampleDaoManager extends DaoManager {
 
     private static final int DATABASE_VERSION = 1;
 
-    public ExampleBlankDaoManager(Context context) {
+    public ExampleDaoManager(Context context) {
         super(context, DATABASE_VERSION);
     }
 
     @Override
-    protected List<BlankBaseDaoObject> getAllTableObjects() {
-        List<BlankBaseDaoObject> list = new ArrayList<>();
+    protected List<DaoBaseObject> getAllTableObjects() {
+        List<DaoBaseObject> objectList = new ArrayList<>();
 
         // FIXME: Classes to CRUD in database
-        list.add(new ExampleObject(context));
+        objectList.add(new ExampleObject());
         // TODO: more classes...
 
-        return list;
+        return objectList;
     }
 }
 ```
-Note in objects that you want save into database.
-
-Create base class extended of BlankBaseDaoObject with and override getBlankDaoManager() method with your ExampleBlankDaoManager
-```java
-public class ExampleBaseObject extends BlankBaseDaoObject {
-
-    public ExampleBaseObject(Context ctx) {
-        super(ctx);
-    }
-
-    @Override
-    public BlankBaseDaoManager getBlankDaoManager() {
-        return new ExampleBlankDaoManager(context);
-    }
-}
-```
-
-Create a CRUD class that extends base class created before
-```java
-pubic class ExampleObject extends ExampleBaseObject {
-
-    public String name;
-
-    @BlankTransient
-    public String noSavedObject;
-
-    public ExampleObject(Context ctx) {
-        super(ctx);
-    }
-
-}
-```
-Note that the @BlankTransient attributes will not stored in database. Stored attributes must be Objects.
+Note that objectList contains all objects that you want save into database.
 
 Finally you could use like this:
 ```java
-ExampleObject newObject = new ExampleObject(getActivity());
+ExampleDaoManager daoManager = new ExampleDaoManager(this);
+
+ExampleObject newObject = new ExampleObject();
 newObject.name = "This is a name";
-BlankDao.saveOrUpdate(newObject);
+daoManager.saveOrUpdate(newObject);
 
 //...
 
-BlankDao.delete(newObject);
+daoManager.delete(obj);
 
 //...
 
-// List<ExampleObject> objects = BlankDao.getAll(new ExampleObject());
+// List<ExampleObject> objectList = daoManager.getAll(new ExampleObject());
 ```
 
 ### License

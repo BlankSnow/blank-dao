@@ -3,7 +3,7 @@ package com.blank.dao;
 import android.content.Context;
 import android.content.SharedPreferences;
 
-public class BlankPreferences {
+public class DaoPreferences {
 
 	/**
 	 * Method that save an int preference of application.

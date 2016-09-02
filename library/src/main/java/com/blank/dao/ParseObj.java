@@ -1,6 +1,6 @@
 package com.blank.dao;
 
-public class BlankObj {
+public class ParseObj {
 
 	/**
 	 * Method that converts an object to string.

@@ -1,18 +1,16 @@
 package com.blank.dao.example;
 
-import android.content.Context;
-
+import com.blank.dao.DaoBaseObject;
 import com.blank.dao.annotations.BlankTransient;
 
-public class ExampleObject extends ExampleBaseObject {
+public class ExampleObject extends DaoBaseObject {
 
-    public String name;
+    public String  someString;
+    public Boolean someBoolean;
+    public Integer someInteger;
 
-    @BlankTransient
-    public String noSavedObject;
-
-    public ExampleObject(Context ctx) {
-        super(ctx);
-    }
+    @BlankTransient public String  noSavedString;
+    @BlankTransient public Boolean noSavedBoolean;
+    @BlankTransient public Integer noSavedInteger;
 
 }

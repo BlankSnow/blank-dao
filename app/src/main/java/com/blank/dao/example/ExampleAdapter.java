@@ -6,7 +6,7 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.TextView;
 
-import com.blank.dao.BlankObj;
+import com.blank.dao.ParseObj;
 
 import java.util.List;
 
@@ -29,8 +29,8 @@ public class ExampleAdapter extends RecyclerView.Adapter<ExampleAdapter.ViewHold
     public void onBindViewHolder(final ViewHolder holder, int position) {
         holder.exampleObject = list.get(position);
 
-        holder.textViewId.setText(BlankObj.toString(holder.exampleObject.id));
-        holder.textViewName.setText(holder.exampleObject.name);
+        holder.textViewId.setText(ParseObj.toString(holder.exampleObject.id));
+        holder.textViewName.setText(holder.exampleObject.someString + "  " + holder.exampleObject.someInteger + "  " + holder.exampleObject.someBoolean);
     }
 
     @Override

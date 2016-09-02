@@ -15,34 +15,39 @@ import java.lang.reflect.Field;
 import java.lang.reflect.Modifier;
 import java.util.ArrayList;
 import java.util.Collections;
+import java.util.Comparator;
 import java.util.List;
 
-public class BlankDao {
+public abstract class DaoManager extends DaoHelper {
 
     private static final String ERROR_INPUT_PARAM = "Input param error!!!";
 
+    // region constructor
+    protected DaoManager(Context context, int version) {
+        super(context, version);
+    }
+    // endregion
+
     // region get methods
-    public static <T extends BlankBaseDaoObject> List<T> getAll(T obj) {
+    public <T extends DaoBaseObject> List<T> getAll(T obj) {
         List<T> list = new ArrayList<>();
         if (obj == null) {
             BlankLog.error(new Exception(ERROR_INPUT_PARAM));
             return list;
         }
 
-        BlankBaseDaoManager database = openDatabase(obj);
-
         try {
-            list = getAll(database.getReadableDatabase(), obj);
+            list = getAll(getReadableDatabase(), obj);
         } catch (Exception e) {
             BlankLog.error(e);
         } finally {
-            closeDatabase(database);
+            close();
         }
 
         return list;
     }
 
-    protected static <T extends BlankBaseDaoObject> List<T> getAll(SQLiteDatabase db, T obj) {
+    protected <T extends DaoBaseObject> List<T> getAll(SQLiteDatabase db, T obj) {
         List<T> list = new ArrayList<T>();
         if (db == null || obj == null) {
             BlankLog.error(new Exception(ERROR_INPUT_PARAM));
@@ -50,7 +55,6 @@ public class BlankDao {
         }
 
         Cursor c = null;
-
         try {
             String query = getQuerySelectAndFrom(obj) + getQueryOrderBy(obj);
             c = db.rawQuery(query, null);
@@ -73,19 +77,17 @@ public class BlankDao {
         return list;
     }
 
-    public static <T extends BlankBaseDaoObject> List<T> getFiltered(T filter) {
+    public <T extends DaoBaseObject> List<T> getFiltered(T filter) {
         List<T> list = new ArrayList<>();
         if (filter == null) {
             BlankLog.error(new Exception(ERROR_INPUT_PARAM));
             return list;
         }
 
-        BlankBaseDaoManager database = openDatabase(filter);
         Cursor c = null;
-
         try {
             String query = getQuerySelectAndFrom(filter) + getQueryWhere(filter) + getQueryOrderBy(filter) + getQueryLimit(filter);
-            c = database.getReadableDatabase().rawQuery(query, null);
+            c = getReadableDatabase().rawQuery(query, null);
             
             if (c.moveToFirst()) {
                 do {
@@ -100,24 +102,22 @@ public class BlankDao {
             if (c != null) {
                 c.close();
             }
-            closeDatabase(database);
+            close();
         }
         // Return object.
         return list;
     }
 
-    public static <T extends BlankBaseDaoObject> void get(T obj) {
+    public <T extends DaoBaseObject> void get(T obj) {
         if (obj == null) {
             BlankLog.error(new Exception(ERROR_INPUT_PARAM));
             return;
         }
 
-        BlankBaseDaoManager database = openDatabase(obj);
         Cursor c = null;
-
         try {
             String query = getQuerySelectAndFrom(obj) + getQueryWhere(obj) + getQueryOrderBy(obj);
-            c = database.getReadableDatabase().rawQuery(query, null);
+            c = getReadableDatabase().rawQuery(query, null);
 
             if (c.moveToFirst()) {
                 putCursorValuesInObject(c, obj);
@@ -128,26 +128,24 @@ public class BlankDao {
             if (c != null) {
                 c.close();
             }
-            closeDatabase(database);
+            close();
         }
     }
 
-    public static <T extends BlankBaseDaoObject> void getById(T obj) {
+    public <T extends DaoBaseObject> void getById(T obj) {
         if (obj == null || obj.id == null) {
             BlankLog.error(new Exception(ERROR_INPUT_PARAM));
             return;
         }
 
-        BlankBaseDaoManager database = openDatabase(obj);
         Cursor c = null;
-
         try {
             int id = obj.id;
             resetObject(obj);
             obj.id = id;
 
             String query = getQuerySelectAndFrom(obj) + getQueryWhere(obj) + getQueryOrderBy(obj);
-            c = database.getReadableDatabase().rawQuery(query, null);
+            c = getReadableDatabase().rawQuery(query, null);
             if (c.moveToFirst()) {
                 putCursorValuesInObject(c, obj);
             }
@@ -158,27 +156,25 @@ public class BlankDao {
             if (c != null) {
                 c.close();
             }
-            closeDatabase(database);
+            close();
         }
     }
     // endregion
 
     // region delete methods
-    public static <T extends BlankBaseDaoObject> void delete(List<T> list) {
+    public <T extends DaoBaseObject> void delete(List<T> list) {
         if (list == null || list.isEmpty()) {
             BlankLog.error(new Exception(ERROR_INPUT_PARAM));
             return;
         }
 
-        BlankBaseDaoManager database = openDatabase(list.get(0));
-        SQLiteDatabase writableDatabase = database.getWritableDatabase();
-
+        SQLiteDatabase writableDatabase = getWritableDatabase();
         try {
             writableDatabase.beginTransaction();
 
             for (T obj : list) {
                 if (obj != null && obj.id != null) {
-                    writableDatabase.delete(getTableName(obj), BlankBaseDaoObject.ID + " = " + obj.id, null);
+                    writableDatabase.delete(getTableName(obj), DaoBaseObject.ID + " = " + obj.id, null);
                 }
             }
             writableDatabase.setTransactionSuccessful();
@@ -186,71 +182,63 @@ public class BlankDao {
             BlankLog.error(e);
         } finally {
             writableDatabase.endTransaction();
-            closeDatabase(database);
+            close();
         }
 
     }
 
-    public static <T extends BlankBaseDaoObject> void delete(T obj) {
+    public <T extends DaoBaseObject> void delete(T obj) {
         if (obj == null || obj.id == null) {
             BlankLog.error(new Exception(ERROR_INPUT_PARAM));
             return;
         }
 
-        BlankBaseDaoManager database = openDatabase(obj);
-
         try {
-            database.getWritableDatabase().delete(getTableName(obj), BlankBaseDaoObject.ID + " = " + obj.id, null);
+            getWritableDatabase().delete(getTableName(obj), DaoBaseObject.ID + " = " + obj.id, null);
         } catch (Exception e) {
             BlankLog.error(e);
         } finally {
-            closeDatabase(database);
+            close();
         }
     }
 
-    public static <T extends BlankBaseDaoObject> void deleteTable(T obj) {
+    public <T extends DaoBaseObject> void deleteTable(T obj) {
         if (obj == null) {
             BlankLog.error(new Exception(ERROR_INPUT_PARAM));
             return;
         }
 
-        BlankBaseDaoManager database = openDatabase(obj);
-
         try {
-            database.getWritableDatabase().delete(getTableName(obj), null, null);
+            getWritableDatabase().delete(getTableName(obj), null, null);
         } catch (Exception e) {
             BlankLog.error(e);
         } finally {
-            closeDatabase(database);
+            close();
         }
     }
     // endregion
 
     // region saveOrUpdate methods
-    public static <T extends BlankBaseDaoObject> void saveOrUpdate(List<T> list) {
+    public <T extends DaoBaseObject> void saveOrUpdate(List<T> list) {
         if (list == null || list.isEmpty() || list.get(0) == null) {
             BlankLog.error(new Exception(ERROR_INPUT_PARAM));
             return;
         }
 
-        BlankBaseDaoManager database = openDatabase(list.get(0));
-
         try {
-            saveOrUpdate(database.getWritableDatabase(), list);
+            saveOrUpdate(getWritableDatabase(), list);
         } catch (Exception e) {
             BlankLog.error(e);
         } finally {
-            closeDatabase(database);
+            close();
         }
     }
 
-    protected static <T extends BlankBaseDaoObject> void saveOrUpdate(SQLiteDatabase db, List<T> list) {
+    protected <T extends DaoBaseObject> void saveOrUpdate(SQLiteDatabase db, List<T> list) {
         if (list == null || list.isEmpty() || list.get(0) == null) {
             BlankLog.error(new Exception(ERROR_INPUT_PARAM));
             return;
         }
-
-        BlankBaseDaoManager database = openDatabase(list.get(0));
 
         try {
             db.beginTransaction();
@@ -259,12 +247,12 @@ public class BlankDao {
                 ContentValues values = getContentValues(obj);
 
                 if (values != null) {
-                    if (BlankObj.isNullOrEmpty(BlankObj.toString(values.get(BlankBaseDaoObject.ID)))) {
+                    if (ParseObj.isNullOrEmpty(ParseObj.toString(values.get(DaoBaseObject.ID)))) {
                         Long newId = db.insert(getTableName(obj), null, values);
-                        obj.id = (BlankObj.toInteger(newId));
+                        obj.id = (ParseObj.toInteger(newId));
                     } else {
-                        values.remove(BlankBaseDaoObject.ID);
-                        db.update(getTableName(obj), values, BlankBaseDaoObject.ID + " = " + obj.id, null);
+                        values.remove(DaoBaseObject.ID);
+                        db.update(getTableName(obj), values, DaoBaseObject.ID + " = " + obj.id, null);
                     }
                 }
             }
@@ -273,45 +261,45 @@ public class BlankDao {
         } catch (Exception e) {
             BlankLog.error(e);
         } finally {
-            closeDatabase(database);
+            db.endTransaction();
+            close();
         }
     }
 
-    public static <T extends BlankBaseDaoObject> void saveOrUpdate(T obj) {
+    public <T extends DaoBaseObject> void saveOrUpdate(T obj) {
         if (obj == null) {
             BlankLog.error(new Exception(ERROR_INPUT_PARAM));
             return;
         }
-        BlankBaseDaoManager database = openDatabase(obj);
 
         try {
             ContentValues values = getContentValues(obj);
 
             if (values != null) {
-                if (BlankObj.isNullOrEmpty(BlankObj.toString(values.get(BlankBaseDaoObject.ID)))) {
-                    Long newId = database.getWritableDatabase().insert(getTableName(obj), null, values);
-                    obj.id = (BlankObj.toInteger(newId));
+                if (ParseObj.isNullOrEmpty(ParseObj.toString(values.get(DaoBaseObject.ID)))) {
+                    Long newId = getWritableDatabase().insert(getTableName(obj), null, values);
+                    obj.id = (ParseObj.toInteger(newId));
                 } else {
-                    values.remove(BlankBaseDaoObject.ID);
-                    database.getWritableDatabase().update(getTableName(obj), values, BlankBaseDaoObject.ID + " = " + obj.id, null);
+                    values.remove(DaoBaseObject.ID);
+                    getWritableDatabase().update(getTableName(obj), values, DaoBaseObject.ID + " = " + obj.id, null);
                 }
             }
         } catch (Exception e) {
             BlankLog.error(e);
         } finally {
-            closeDatabase(database);
+            close();
         }
     }
     // endregion
 
     // region query methods
-    protected static <T extends BlankBaseDaoObject> String getQueryCreateTable(T obj) {
+    protected <T extends DaoBaseObject> String getQueryCreateTable(T obj) {
         String create = "CREATE TABLE IF NOT EXISTS " + getTableName(obj) + " ( ";
 
         List<Field> fields = getOrderedFields(obj);
         for (int i = 0; i < fields.size(); i++) {
             String column = fields.get(i).getName();
-            if (fields.get(i).getType().equals(Integer.class) || fields.get(i).getType().equals(Long.class) || BlankBaseDaoObject.class.isAssignableFrom(fields.get(i).getType())) {
+            if (fields.get(i).getType().equals(Integer.class) || fields.get(i).getType().equals(Long.class) || DaoBaseObject.class.isAssignableFrom(fields.get(i).getType())) {
                 column += " INTEGER ";
             } else if (fields.get(i).getType().equals(Float.class) || fields.get(i).getType().equals(Double.class)) {
                 column += " REAL ";
@@ -339,14 +327,14 @@ public class BlankDao {
         return create;
     }
 
-    public static <T extends BlankBaseDaoObject> String getQueryDeleteTable(T obj) {
+    public <T extends DaoBaseObject> String getQueryDeleteTable(T obj) {
         return "DROP TABLE IF EXISTS " + getTableName(obj) + " ";
     }
 
-    public static <T extends BlankBaseDaoObject> String getQuerySelectAndFrom(T obj) {
+    public <T extends DaoBaseObject> String getQuerySelectAndFrom(T obj) {
         String selectAndFrom = "SELECT ";
 
-        if (!BlankObj.isNullOrEmpty(obj.customSelect)) {
+        if (!ParseObj.isNullOrEmpty(obj.customSelect)) {
             selectAndFrom += obj.customSelect + " ";
         } else {
             selectAndFrom += "* ";
@@ -354,7 +342,7 @@ public class BlankDao {
 
         selectAndFrom += "FROM ";
 
-        if (!BlankObj.isNullOrEmpty(obj.customFrom)) {
+        if (!ParseObj.isNullOrEmpty(obj.customFrom)) {
             selectAndFrom += obj.customFrom + " ";
 
         } else {
@@ -364,13 +352,17 @@ public class BlankDao {
         return selectAndFrom;
     }
 
-    protected static <T extends BlankBaseDaoObject> String getQueryWhere(T obj) {
+    protected <T extends DaoBaseObject> String getQueryWhere(T obj) {
         String where = "";
 
-        if (!BlankObj.isNullOrEmpty(obj.customWhere)) {
+        if (!ParseObj.isNullOrEmpty(obj.customWhere)) {
             where += "WHERE " + obj.customWhere + " ";
         } else {
             List<Field> fields = getOrderedFields(obj);
+
+            if (!DaoBaseObject.FILTER_TYPE_AND.equals(obj.filterType) && !DaoBaseObject.FILTER_TYPE_OR.equals(obj.filterType)) {
+                obj.filterType = DaoBaseObject.FILTER_TYPE_AND;
+            }
 
             for (int i = 0; i < fields.size(); i++) {
                 try {
@@ -383,16 +375,16 @@ public class BlankDao {
 
                         Object value = field.get(obj);
                         if (value instanceof String) {
-                            fieldValue = "'" + BlankObj.toString(value) + "'";
-                        } else if (value instanceof BlankBaseDaoObject) {
-                            Integer id = ((BlankBaseDaoObject) value).id;
+                            fieldValue = "'" + ParseObj.toString(value) + "'";
+                        } else if (value instanceof DaoBaseObject) {
+                            Integer id = ((DaoBaseObject) value).id;
                             if (id != null) {
-                                fieldValue = BlankObj.toString(id);
+                                fieldValue = ParseObj.toString(id);
                             } else {
                                 continue;
                             }
                         } else {
-                            fieldValue = BlankObj.toString(value);
+                            fieldValue = ParseObj.toString(value);
                         }
 
                         if ("".equals(where)) {
@@ -410,11 +402,18 @@ public class BlankDao {
         return where;
     }
 
-    public static <T extends BlankBaseDaoObject> String getQueryOrderBy(T obj) {
+    public <T extends DaoBaseObject> String getQueryOrderBy(T obj) {
+        if (obj.orderBy == null) {
+            obj.orderBy = DaoBaseObject.ORDER_BY_DEFAULT;
+        }
+
+        if (!DaoBaseObject.ORDER_TYPE_ASC.equals(obj.orderType) && !DaoBaseObject.ORDER_TYPE_DESC.equals(obj.orderType)) {
+            obj.orderType = DaoBaseObject.ORDER_TYPE_ASC;
+        }
         return "ORDER BY " + obj.orderBy + " " + obj.orderType + " ";
     }
 
-    public static <T extends BlankBaseDaoObject> String getQueryLimit(T obj) {
+    public <T extends DaoBaseObject> String getQueryLimit(T obj) {
         if (obj.limit != null) {
             return " LIMIT " + obj.limit;
         } else {
@@ -424,7 +423,7 @@ public class BlankDao {
     // endregion
 
     // region annotation methods
-    private static BlankId getBlankIdAnnotation(Field field) {
+    private BlankId getBlankIdAnnotation(Field field) {
         for(Annotation annotation : field.getDeclaredAnnotations()){
             if(annotation instanceof BlankId){
                 return (BlankId)annotation;
@@ -433,7 +432,7 @@ public class BlankDao {
         return null;
     }
 
-    private static boolean containsBlankTransientAnnotation(Field field) {
+    private boolean containsBlankTransientAnnotation(Field field) {
         for(Annotation annotation : field.getDeclaredAnnotations()){
             if(annotation instanceof BlankTransient){
                 return Boolean.TRUE;
@@ -445,10 +444,10 @@ public class BlankDao {
 
     // region util methods
     @SuppressWarnings("unchecked")
-    private static <T extends BlankBaseDaoObject> T createNewInstance(T obj) {
+    private <T extends DaoBaseObject> T createNewInstance(T obj) {
         try {
-            Constructor<? extends BlankBaseDaoObject> con = obj.getClass().getDeclaredConstructor(Context.class);
-            T aux = (T) con.newInstance(obj.context);
+            Constructor<? extends DaoBaseObject> con = obj.getClass().getDeclaredConstructor();
+            T aux = (T) con.newInstance();
             return aux;
         } catch (Exception e) {
             BlankLog.error(e);
@@ -456,7 +455,7 @@ public class BlankDao {
         return null;
     }
 
-    private static <T extends BlankBaseDaoObject> void resetObject(T obj) {
+    private <T extends DaoBaseObject> void resetObject(T obj) {
         List<Field> fields = getOrderedFields(obj);
         if (!fields.isEmpty()) {
             for (Field field : fields) {
@@ -470,7 +469,7 @@ public class BlankDao {
         }
     }
 
-    private static <T extends BlankBaseDaoObject> ContentValues getContentValues(T obj) {
+    private <T extends DaoBaseObject> ContentValues getContentValues(T obj) {
         // Content values.
         ContentValues values = null;
 
@@ -487,19 +486,19 @@ public class BlankDao {
                     if (value == null) {
                         values.putNull(name);
                     } else if (value instanceof Boolean) {
-                        values.put(name, BlankObj.toBoolean(value));
+                        values.put(name, ParseObj.toBoolean(value));
                     } else if (value instanceof String) {
-                        values.put(name, BlankObj.toString(value));
+                        values.put(name, ParseObj.toString(value));
                     } else if (value instanceof Integer) {
-                        values.put(name, BlankObj.toInteger(value));
+                        values.put(name, ParseObj.toInteger(value));
                     } else if (value instanceof Long) {
-                        values.put(name, BlankObj.toLong(value));
+                        values.put(name, ParseObj.toLong(value));
                     } else if (value instanceof Double) {
-                        values.put(name, BlankObj.toDouble(value));
+                        values.put(name, ParseObj.toDouble(value));
                     } else if (value instanceof Float) {
-                        values.put(name, BlankObj.toFloat(value));
-                    } else if (value instanceof BlankBaseDaoObject) {
-                        values.put(name, ((BlankBaseDaoObject)value).id);
+                        values.put(name, ParseObj.toFloat(value));
+                    } else if (value instanceof DaoBaseObject) {
+                        values.put(name, ((DaoBaseObject)value).id);
                     }
 
                 } catch (Exception e) {
@@ -512,7 +511,7 @@ public class BlankDao {
     }
 
     @SuppressWarnings("unchecked")
-    protected static <T extends BlankBaseDaoObject> void putCursorValuesInObject(Cursor c, T obj) {
+    protected <T extends DaoBaseObject> void putCursorValuesInObject(Cursor c, T obj) {
         List<Field> fields = getOrderedFields(obj);
 
         if (!fields.isEmpty()) {
@@ -527,21 +526,21 @@ public class BlankDao {
                             if (c.isNull(columIndex)) {
                                 field.set(obj, null);
                             } else if (field.getType().equals(Boolean.class)) {
-                                field.set(obj, BlankObj.toBoolean(c.getInt(columIndex)));
+                                field.set(obj, ParseObj.toBoolean(c.getInt(columIndex)));
                             } else if (field.getType().equals(String.class)) {
                                 field.set(obj, c.getString(columIndex));
                             } else if (field.getType().equals(Integer.class)) {
                                 field.set(obj, c.getInt(columIndex));
                             } else if (field.getType().equals(Long.class)) {
-                                field.set(obj, BlankObj.toLong(c.getLong(columIndex)));
+                                field.set(obj, ParseObj.toLong(c.getLong(columIndex)));
                             } else if (field.getType().equals(Float.class)) {
-                                field.set(obj, BlankObj.toFloat(c.getFloat(columIndex)));
+                                field.set(obj, ParseObj.toFloat(c.getFloat(columIndex)));
                             } else if (field.getType().equals(Double.class)) {
-                                field.set(obj, BlankObj.toDouble(c.getDouble(columIndex)));
-                            } else if (BlankBaseDaoObject.class.isAssignableFrom(field.getType())) {
+                                field.set(obj, ParseObj.toDouble(c.getDouble(columIndex)));
+                            } else if (DaoBaseObject.class.isAssignableFrom(field.getType())) {
                                 Class<?> clazz = field.getType();
-                                Constructor<? extends BlankBaseDaoObject> con = (Constructor<? extends BlankBaseDaoObject>) clazz.getDeclaredConstructor(Context.class);
-                                BlankBaseDaoObject aux = (BlankBaseDaoObject) con.newInstance(obj.context);
+                                Constructor<? extends DaoBaseObject> con = (Constructor<? extends DaoBaseObject>) clazz.getDeclaredConstructor();
+                                DaoBaseObject aux = (DaoBaseObject) con.newInstance();
                                 aux.id = c.getInt(columIndex);
                                 field.set(obj, aux);
                             }
@@ -556,15 +555,11 @@ public class BlankDao {
         }
     }
 
-    private static <T extends BlankBaseDaoObject> String getTableName(T obj) {
+    private <T extends DaoBaseObject> String getTableName(T obj) {
         return obj.getClass().getSimpleName();
     }
 
-    private static <T extends BlankBaseDaoObject> BlankBaseDaoManager openDatabase(T obj) {
-        return obj.getBlankDaoManager();
-    }
-
-    private static void closeDatabase(BlankBaseDaoManager blankDatabaseManagement) {
+    private void closeDatabase(DaoHelper blankDatabaseManagement) {
         if (blankDatabaseManagement != null) {
             blankDatabaseManagement.close();
         }
@@ -572,13 +567,13 @@ public class BlankDao {
     // endregion
 
     // region object fields
-    public static <T extends BlankBaseDaoObject> List<Field> getOrderedFields(T obj) {
+    public <T extends DaoBaseObject> List<Field> getOrderedFields(T obj) {
         List<Field> list = getInheritedFields(obj.getClass());
-        Collections.sort(list, new com.blank.dao.BlankComparatorField());
+        Collections.sort(list, new BlankComparatorField());
         return list;
     }
 
-    private static List<Field> getInheritedFields(Class<?> type) {
+    private List<Field> getInheritedFields(Class<?> type) {
         List<Field> fields = new ArrayList<>();
 
         for (Class<?> c = type; c != null && c != Object.class; c = c.getSuperclass()) {
@@ -591,6 +586,21 @@ public class BlankDao {
         }
 
         return fields;
+    }
+
+    private class BlankComparatorField implements Comparator<Field> {
+
+        /**
+         * Constructor
+         */
+        public BlankComparatorField() {
+            super();
+        }
+
+        @Override
+        public int compare(Field obj1, Field obj2) {
+            return obj1.getName().compareTo(obj2.getName());
+        }
     }
     // endregion
 }

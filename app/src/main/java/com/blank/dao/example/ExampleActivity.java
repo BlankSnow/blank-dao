@@ -7,13 +7,14 @@ import android.support.v7.widget.RecyclerView;
 import android.view.View;
 import android.widget.Button;
 
-import com.blank.dao.BlankDao;
+import com.blank.dao.ParseObj;
 
 import java.util.Date;
 import java.util.List;
 
 public class ExampleActivity extends AppCompatActivity {
 
+    ExampleDaoManager daoManager;
     RecyclerView recyclerView;
     ExampleAdapter exampleAdapter;
     List<ExampleObject> objectList;
@@ -24,18 +25,19 @@ public class ExampleActivity extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
 
+        daoManager = new ExampleDaoManager(this);
         loadPage();
     }
 
     private void loadPage() {
         recyclerView = (RecyclerView)findViewById(R.id.recycler_view);
-        objectList = BlankDao.getAll(new ExampleObject(this));
+        objectList = daoManager.getAll(new ExampleObject());
         exampleAdapter = new ExampleAdapter(objectList);
         exampleAdapter.setOnAdapterListener(new ExampleOnAdapterListener() {
             @Override
             public void onItemClick(View view, int position) {
                 ExampleObject obj  = objectList.get(position);
-                BlankDao.delete(obj);
+                daoManager.delete(obj);
                 loadPage();
             }
 
@@ -51,10 +53,12 @@ public class ExampleActivity extends AppCompatActivity {
         buttonAdd.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                ExampleObject newObject = new ExampleObject(ExampleActivity.this);
+                ExampleObject newObject = new ExampleObject();
                 long time = new Date().getTime();
-                newObject.name = "Obj" + time;
-                BlankDao.saveOrUpdate(newObject);
+                newObject.someString = "Obj";
+                newObject.someInteger = ParseObj.toInteger(time);
+                newObject.someBoolean = time % 2 == 0;
+                daoManager.saveOrUpdate(newObject);
                 loadPage();
             }
         });
