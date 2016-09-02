@@ -56,7 +56,7 @@ daoManager.delete(obj);
 
 //...
 
-// List<ExampleObject> objectList = daoManager.getAll(new ExampleObject());
+List<ExampleObject> objectList = daoManager.getAll(new ExampleObject());
 ```
 
 ### License
