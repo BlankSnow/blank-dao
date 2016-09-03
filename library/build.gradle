@@ -27,7 +27,7 @@ publish {
     userOrg = 'blanksnow'
     groupId = 'com.blank.dao'
     artifactId = 'blank-dao'
-    publishVersion = '1.0.0'
+    publishVersion = '2.0.0'
     desc = 'Simple SQLite DAO access for android projects'
     website = 'https://github.com/BlankSnow/blank-dao'
 }
