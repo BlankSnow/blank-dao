@@ -1,4 +1,4 @@
-package com.blank.dao.example;
+package com.blank.dao.example.base;
 
 import android.os.Bundle;
 import android.support.v7.app.AppCompatActivity;
@@ -8,13 +8,16 @@ import android.view.View;
 import android.widget.Button;
 
 import com.blank.dao.ParseObj;
+import com.blank.dao.example.MyDaoManager;
+import com.blank.dao.example.MyOnAdapterListener;
+import com.blank.dao.example.R;
 
 import java.util.Date;
 import java.util.List;
 
 public class ExampleActivity extends AppCompatActivity {
 
-    ExampleDaoManager daoManager;
+    MyDaoManager daoManager;
     RecyclerView recyclerView;
     ExampleAdapter exampleAdapter;
     List<ExampleObject> objectList;
@@ -25,7 +28,7 @@ public class ExampleActivity extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
 
-        daoManager = new ExampleDaoManager(this);
+        daoManager = new MyDaoManager(this);
         loadPage();
     }
 
@@ -33,7 +36,7 @@ public class ExampleActivity extends AppCompatActivity {
         recyclerView = (RecyclerView)findViewById(R.id.recycler_view);
         objectList = daoManager.getAll(new ExampleObject());
         exampleAdapter = new ExampleAdapter(objectList);
-        exampleAdapter.setOnAdapterListener(new ExampleOnAdapterListener() {
+        exampleAdapter.setOnAdapterListener(new MyOnAdapterListener() {
             @Override
             public void onItemClick(View view, int position) {
                 ExampleObject obj  = objectList.get(position);
@@ -53,8 +56,8 @@ public class ExampleActivity extends AppCompatActivity {
         buttonAdd.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                ExampleObject newObject = new ExampleObject();
                 long time = new Date().getTime();
+                ExampleObject newObject = new ExampleObject();
                 newObject.someString = "Obj";
                 newObject.someInteger = ParseObj.toInteger(time);
                 newObject.someBoolean = time % 2 == 0;

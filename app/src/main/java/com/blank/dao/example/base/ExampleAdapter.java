@@ -1,4 +1,4 @@
-package com.blank.dao.example;
+package com.blank.dao.example.base;
 
 import android.support.v7.widget.RecyclerView;
 import android.view.LayoutInflater;
@@ -7,13 +7,15 @@ import android.view.ViewGroup;
 import android.widget.TextView;
 
 import com.blank.dao.ParseObj;
+import com.blank.dao.example.MyOnAdapterListener;
+import com.blank.dao.example.R;
 
 import java.util.List;
 
 public class ExampleAdapter extends RecyclerView.Adapter<ExampleAdapter.ViewHolder> {
 
     private List<ExampleObject> list;
-    private ExampleOnAdapterListener onAdapterListener;
+    private MyOnAdapterListener onAdapterListener;
 
     public ExampleAdapter(List<ExampleObject> list) {
         this.list = list;
@@ -29,7 +31,7 @@ public class ExampleAdapter extends RecyclerView.Adapter<ExampleAdapter.ViewHold
     public void onBindViewHolder(final ViewHolder holder, int position) {
         holder.exampleObject = list.get(position);
 
-        holder.textViewId.setText(ParseObj.toString(holder.exampleObject.id));
+        holder.textViewId.setText(ParseObj.toString(holder.exampleObject.getId()));
         holder.textViewName.setText(holder.exampleObject.someString + "  " + holder.exampleObject.someInteger + "  " + holder.exampleObject.someBoolean);
     }
 
@@ -43,7 +45,7 @@ public class ExampleAdapter extends RecyclerView.Adapter<ExampleAdapter.ViewHold
         return list.size();
     }
 
-    public void setOnAdapterListener(ExampleOnAdapterListener onAdapterListener) {
+    public void setOnAdapterListener(MyOnAdapterListener onAdapterListener) {
         this.onAdapterListener = onAdapterListener;
     }
 

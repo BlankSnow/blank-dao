@@ -133,16 +133,16 @@ public abstract class DaoManager extends DaoHelper {
     }
 
     public <T extends DaoBaseObject> void getById(T obj) {
-        if (obj == null || obj.id == null) {
+        if (obj == null || obj.getId() == null) {
             BlankLog.error(new Exception(ERROR_INPUT_PARAM));
             return;
         }
 
         Cursor c = null;
         try {
-            int id = obj.id;
+            int id = obj.getId();
             resetObject(obj);
-            obj.id = id;
+            obj.setId(id);
 
             String query = getQuerySelectAndFrom(obj) + getQueryWhere(obj) + getQueryOrderBy(obj);
             c = getReadableDatabase().rawQuery(query, null);
@@ -173,8 +173,8 @@ public abstract class DaoManager extends DaoHelper {
             writableDatabase.beginTransaction();
 
             for (T obj : list) {
-                if (obj != null && obj.id != null) {
-                    writableDatabase.delete(getTableName(obj), DaoBaseObject.ID + " = " + obj.id, null);
+                if (obj != null && obj.getId() != null) {
+                    writableDatabase.delete(getTableName(obj), DaoBaseObject.ID + " = " + obj.getId(), null);
                 }
             }
             writableDatabase.setTransactionSuccessful();
@@ -188,13 +188,13 @@ public abstract class DaoManager extends DaoHelper {
     }
 
     public <T extends DaoBaseObject> void delete(T obj) {
-        if (obj == null || obj.id == null) {
+        if (obj == null || obj.getId() == null) {
             BlankLog.error(new Exception(ERROR_INPUT_PARAM));
             return;
         }
 
         try {
-            getWritableDatabase().delete(getTableName(obj), DaoBaseObject.ID + " = " + obj.id, null);
+            getWritableDatabase().delete(getTableName(obj), DaoBaseObject.ID + " = " + obj.getId(), null);
         } catch (Exception e) {
             BlankLog.error(e);
         } finally {
@@ -249,10 +249,10 @@ public abstract class DaoManager extends DaoHelper {
                 if (values != null) {
                     if (ParseObj.isNullOrEmpty(ParseObj.toString(values.get(DaoBaseObject.ID)))) {
                         Long newId = db.insert(getTableName(obj), null, values);
-                        obj.id = (ParseObj.toInteger(newId));
+                        obj.setId(ParseObj.toInteger(newId));
                     } else {
                         values.remove(DaoBaseObject.ID);
-                        db.update(getTableName(obj), values, DaoBaseObject.ID + " = " + obj.id, null);
+                        db.update(getTableName(obj), values, DaoBaseObject.ID + " = " + obj.getId(), null);
                     }
                 }
             }
@@ -278,10 +278,10 @@ public abstract class DaoManager extends DaoHelper {
             if (values != null) {
                 if (ParseObj.isNullOrEmpty(ParseObj.toString(values.get(DaoBaseObject.ID)))) {
                     Long newId = getWritableDatabase().insert(getTableName(obj), null, values);
-                    obj.id = (ParseObj.toInteger(newId));
+                    obj.setId(ParseObj.toInteger(newId));
                 } else {
                     values.remove(DaoBaseObject.ID);
-                    getWritableDatabase().update(getTableName(obj), values, DaoBaseObject.ID + " = " + obj.id, null);
+                    getWritableDatabase().update(getTableName(obj), values, DaoBaseObject.ID + " = " + obj.getId(), null);
                 }
             }
         } catch (Exception e) {
@@ -377,7 +377,7 @@ public abstract class DaoManager extends DaoHelper {
                         if (value instanceof String) {
                             fieldValue = "'" + ParseObj.toString(value) + "'";
                         } else if (value instanceof DaoBaseObject) {
-                            Integer id = ((DaoBaseObject) value).id;
+                            Integer id = ((DaoBaseObject) value).getId();
                             if (id != null) {
                                 fieldValue = ParseObj.toString(id);
                             } else {
@@ -447,6 +447,7 @@ public abstract class DaoManager extends DaoHelper {
     private <T extends DaoBaseObject> T createNewInstance(T obj) {
         try {
             Constructor<? extends DaoBaseObject> con = obj.getClass().getDeclaredConstructor();
+            con.setAccessible(true);
             T aux = (T) con.newInstance();
             return aux;
         } catch (Exception e) {
@@ -498,7 +499,7 @@ public abstract class DaoManager extends DaoHelper {
                     } else if (value instanceof Float) {
                         values.put(name, ParseObj.toFloat(value));
                     } else if (value instanceof DaoBaseObject) {
-                        values.put(name, ((DaoBaseObject)value).id);
+                        values.put(name, ((DaoBaseObject)value).getId());
                     }
 
                 } catch (Exception e) {
@@ -541,7 +542,7 @@ public abstract class DaoManager extends DaoHelper {
                                 Class<?> clazz = field.getType();
                                 Constructor<? extends DaoBaseObject> con = (Constructor<? extends DaoBaseObject>) clazz.getDeclaredConstructor();
                                 DaoBaseObject aux = (DaoBaseObject) con.newInstance();
-                                aux.id = c.getInt(columIndex);
+                                aux.setId(c.getInt(columIndex));
                                 field.set(obj, aux);
                             }
                         }
@@ -551,7 +552,7 @@ public abstract class DaoManager extends DaoHelper {
                 }
             }
         } else {
-            obj.id = null;
+            obj.setId(null);
         }
     }
 

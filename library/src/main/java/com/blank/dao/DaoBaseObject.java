@@ -17,7 +17,7 @@ public abstract class DaoBaseObject {
 
     // region attributes
     // Id
-    @BlankId(autoincrement = true) public Integer id;
+    @BlankId(autoincrement = true) private Integer id;
 
     // Custom queries
     @BlankTransient
@@ -45,6 +45,14 @@ public abstract class DaoBaseObject {
     // endregion
 
     // region methods
+    public Integer getId() {
+        return id;
+    }
+
+    public void setId(Integer id) {
+        this.id = id;
+    }
+
     public void setOrderTypeAsc() {
         orderType = ORDER_TYPE_ASC;
     }
