@@ -9,10 +9,6 @@
         android:supportsRtl="true"
         android:theme="@style/AppTheme">
         <activity android:name=".base.ExampleActivity">
-
-        </activity>
-
-        <activity android:name=".builder.Example2Activity">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
                 <category android:name="android.intent.category.LAUNCHER" />

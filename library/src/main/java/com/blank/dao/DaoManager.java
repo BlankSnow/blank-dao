@@ -357,45 +357,45 @@ public abstract class DaoManager extends DaoHelper {
 
         if (!ParseObj.isNullOrEmpty(obj.customWhere)) {
             where += "WHERE " + obj.customWhere + " ";
-        } else {
-            List<Field> fields = getOrderedFields(obj);
+        }
 
-            if (!DaoBaseObject.FILTER_TYPE_AND.equals(obj.filterType) && !DaoBaseObject.FILTER_TYPE_OR.equals(obj.filterType)) {
-                obj.filterType = DaoBaseObject.FILTER_TYPE_AND;
-            }
+        List<Field> fields = getOrderedFields(obj);
 
-            for (int i = 0; i < fields.size(); i++) {
-                try {
-                    Field field = fields.get(i);
-                    field.setAccessible(Boolean.TRUE);
+        if (!DaoBaseObject.FILTER_TYPE_AND.equals(obj.filterType) && !DaoBaseObject.FILTER_TYPE_OR.equals(obj.filterType)) {
+            obj.filterType = DaoBaseObject.FILTER_TYPE_AND;
+        }
 
-                    if (field.get(obj) != null) {
-                        String fieldName = field.getName();
-                        String fieldValue = null;
+        for (int i = 0; i < fields.size(); i++) {
+            try {
+                Field field = fields.get(i);
+                field.setAccessible(Boolean.TRUE);
 
-                        Object value = field.get(obj);
-                        if (value instanceof String) {
-                            fieldValue = "'" + ParseObj.toString(value) + "'";
-                        } else if (value instanceof DaoBaseObject) {
-                            Integer id = ((DaoBaseObject) value).getId();
-                            if (id != null) {
-                                fieldValue = ParseObj.toString(id);
-                            } else {
-                                continue;
-                            }
+                if (field.get(obj) != null) {
+                    String fieldName = field.getName();
+                    String fieldValue;
+
+                    Object value = field.get(obj);
+                    if (value instanceof String) {
+                        fieldValue = "'" + ParseObj.toString(value) + "'";
+                    } else if (value instanceof DaoBaseObject) {
+                        Integer id = ((DaoBaseObject) value).getId();
+                        if (id != null) {
+                            fieldValue = ParseObj.toString(id);
                         } else {
-                            fieldValue = ParseObj.toString(value);
+                            continue;
                         }
-
-                        if ("".equals(where)) {
-                            where += "WHERE " + fieldName + " = " + fieldValue + " ";
-                        } else {
-                            where += obj.filterType + " " + fieldName + " = " + fieldValue + " ";
-                        }
+                    } else {
+                        fieldValue = ParseObj.toString(value);
                     }
-                } catch (Exception e) {
-                    BlankLog.error(e);
+
+                    if ("".equals(where)) {
+                        where += "WHERE " + fieldName + " = " + fieldValue + " ";
+                    } else {
+                        where += obj.filterType + " " + fieldName + " = " + fieldValue + " ";
+                    }
                 }
+            } catch (Exception e) {
+                BlankLog.error(e);
             }
         }
 
