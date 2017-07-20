@@ -8,8 +8,8 @@ android {
     defaultConfig {
         minSdkVersion 16
         targetSdkVersion 23
-        versionCode 3
-        versionName "2.1.0"
+        versionCode 4
+        versionName "2.1.1"
     }
     buildTypes {
         release {
@@ -27,7 +27,7 @@ publish {
     userOrg = 'blanksnow'
     groupId = 'com.blank.dao'
     artifactId = 'blank-dao'
-    publishVersion = '2.1.0'
+    publishVersion = '2.1.1'
     desc = 'Simple SQLite DAO access for android projects'
     website = 'https://github.com/BlankSnow/blank-dao'
 }

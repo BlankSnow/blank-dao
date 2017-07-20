@@ -34,11 +34,11 @@ public class ExampleActivity extends AppCompatActivity {
 
     private void loadPage() {
         recyclerView = (RecyclerView)findViewById(R.id.recycler_view);
-        ExampleObject filter = new ExampleObject();
-        filter.customWhere = "someBoolean = 1";
-        filter.someString = "Obj";
-        objectList = daoManager.getFiltered(filter);
-        //objectList = daoManager.getAll(new ExampleObject());
+        //ExampleObject filter = new ExampleObject();
+        //filter.customWhere = "someBoolean = 1";
+        //filter.someString = "Obj";
+        //objectList = daoManager.getFiltered(filter);
+        objectList = daoManager.getAll(new ExampleObject());
         exampleAdapter = new ExampleAdapter(objectList);
         exampleAdapter.setOnAdapterListener(new MyOnAdapterListener() {
             @Override
