@@ -5,6 +5,7 @@ import android.content.Context;
 import com.blank.dao.DaoBaseObject;
 import com.blank.dao.DaoManager;
 import com.blank.dao.example.base.ExampleObject;
+import com.blank.dao.example.kotlin.KotlinObject;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -23,6 +24,7 @@ public class MyDaoManager extends DaoManager {
 
         // FIXME: Classes to CRUD in database
         objectList.add(new ExampleObject());
+        objectList.add(new KotlinObject());
         // TODO: more classes...
 
         return objectList;

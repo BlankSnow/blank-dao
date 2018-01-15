@@ -108,7 +108,7 @@ public abstract class DaoHelper extends SQLiteOpenHelper {
     }
 
     protected void createAllTables(SQLiteDatabase db) {
-        for (DaoBaseObject obj: getAllTableObjects()) {
+        for (DaoBaseObject obj : getAllTableObjects()) {
             db.execSQL(getQueryCreateTable(obj));
         }
     }

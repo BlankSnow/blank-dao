@@ -7,8 +7,8 @@ import android.view.ViewGroup;
 import android.widget.TextView;
 
 import com.blank.dao.ParseObj;
-import com.blank.dao.example.MyOnAdapterListener;
 import com.blank.dao.example.R;
+import com.blank.dao.example.base.config.MyOnAdapterListener;
 
 import java.util.List;
 
@@ -28,11 +28,11 @@ public class ExampleAdapter extends RecyclerView.Adapter<ExampleAdapter.ViewHold
     }
 
     @Override
-    public void onBindViewHolder(final ViewHolder holder, int position) {
-        holder.exampleObject = list.get(position);
+    public void onBindViewHolder(final ViewHolder holderItem, int position) {
+        holderItem.exampleObject = list.get(position);
 
-        holder.textViewId.setText(ParseObj.toString(holder.exampleObject.getId()));
-        holder.textViewName.setText(holder.exampleObject.someString + "  " + holder.exampleObject.someInteger + "  " + holder.exampleObject.someBoolean);
+        holderItem.textViewId.setText(ParseObj.toString(holderItem.exampleObject.getId()));
+        holderItem.textViewName.setText(holderItem.exampleObject.someString + "  " + holderItem.exampleObject.someInteger + "  " + holderItem.exampleObject.someBoolean);
     }
 
     @Override

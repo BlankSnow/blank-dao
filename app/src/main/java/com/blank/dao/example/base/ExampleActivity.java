@@ -9,8 +9,8 @@ import android.widget.Button;
 
 import com.blank.dao.ParseObj;
 import com.blank.dao.example.MyDaoManager;
-import com.blank.dao.example.MyOnAdapterListener;
 import com.blank.dao.example.R;
+import com.blank.dao.example.base.config.MyOnAdapterListener;
 
 import java.util.Date;
 import java.util.List;
@@ -26,7 +26,7 @@ public class ExampleActivity extends AppCompatActivity {
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        setContentView(R.layout.activity_main);
+        setContentView(R.layout.activity_example);
 
         daoManager = new MyDaoManager(this);
         loadPage();

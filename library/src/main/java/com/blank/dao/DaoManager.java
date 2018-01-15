@@ -299,12 +299,13 @@ public abstract class DaoManager extends DaoHelper {
         List<Field> fields = getOrderedFields(obj);
         for (int i = 0; i < fields.size(); i++) {
             String column = fields.get(i).getName();
-            if (fields.get(i).getType().equals(Integer.class) || fields.get(i).getType().equals(Long.class) || DaoBaseObject.class.isAssignableFrom(fields.get(i).getType())) {
-                column += " INTEGER ";
-            } else if (fields.get(i).getType().equals(Float.class) || fields.get(i).getType().equals(Double.class)) {
+
+            if (fields.get(i).getType().equals(Float.class) || fields.get(i).getType().equals(Double.class)) {
                 column += " REAL ";
             } else if (fields.get(i).getType().equals(String.class)) {
                 column += " TEXT ";
+            } else {
+                column += " INTEGER ";
             }
 
             BlankId annotation = getBlankIdAnnotation(fields.get(i));

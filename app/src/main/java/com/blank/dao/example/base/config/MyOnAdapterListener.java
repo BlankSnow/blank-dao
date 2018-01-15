@@ -1,4 +1,4 @@
-package com.blank.dao.example;
+package com.blank.dao.example.base.config;
 
 import android.view.View;
 
